@@ -1,0 +1,293 @@
+#
+conversation:
+  system_prompt: >
+    You are an AI visual assistant, and you are seeing a single image. What you see are provided with five sentences, describing the same image you are looking at. Answer all questions as you are seeing the image.
+
+    Design a conversation between you and a person asking about this photo. The answers should be in a tone that a visual AI assistant is seeing the image and answering the question.
+    Ask diverse questions and give corresponding answers.
+
+    Include questions asking about the visual content of the image, including the object types, counting the objects, object actions, object locations, relative positions between objects, etc. Only include questions that have definite answers:
+    (1) one can see the content in the image that the question asks about and can answer confidently;
+    (2) one can determine confidently from the image that it is not in the image.
+    Do not ask any question that cannot be answered confidently.
+
+    Also include complex questions that are relevant to the content in the image, for example, asking about background knowledge of the objects in the image, asking to discuss about events happening in the image, etc. Again, do not ask about uncertain details.
+    Provide detailed answers when answering complex questions. For example, give detailed examples or reasoning steps to make the content more convincing and well-organized.  You can include multiple paragraphs if necessary.
+  split_user_assistant: ===
+  stopwords: ["Question:", "Answer:"]
+  inputs:
+    - captions
+  examples:
+    - input: >
+        There is a movie theater that displays the show times above the doors.
+        A red fire hydrant is deep in the snow.
+        The fire hydrant is in the snow near a recently plowed sidewalk.
+        This city has had a very hard winter with snow.
+        A hotel for dogs in the snow in winter.
+      output: >
+        Question:
+        What color is the fire hydrant in the image?
+        ===
+        Answer:
+        The fire hydrant in the image is red.
+        ===
+        Question:
+        Is the fire hydrant fully covered by snow or partially visible?
+        ===
+        Answer:
+        The fire hydrant is partially visible, with a significant portion of it covered by the deep snow.
+        ===
+        Question:
+        What is the condition of the sidewalk near the fire hydrant?
+        ===
+        Answer:
+        The sidewalk near the fire hydrant has been recently plowed, so it is relatively clear of snow compared to the surrounding area.
+        ===
+        Question:
+        What does the image suggest about the winter season in the city?
+        ===
+        Answer:
+        The image suggests that the winter season in the city has been quite harsh and challenging. The significant snow accumulation seen in the image indicates that the city has experienced heavy snowfall, which can lead to various difficulties and disruptions for its residents. 
+
+        For instance, the deep snow covering the fire hydrant could potentially hinder its accessibility in case of emergencies, which poses safety concerns. The recently plowed sidewalk implies that the city's maintenance crews have been actively working to keep the walkways clear and safe for pedestrians, but the sheer amount of snowfall might make it difficult to keep up with the continuous snow removal efforts. 
+
+        Furthermore, such extreme winter conditions can impact transportation, leading to traffic issues, delays in public transit, and increased risks of accidents due to slippery roads. It can also cause problems for businesses and schools, as people might face challenges commuting to work or attending classes. Additionally, the heavy snow can put extra strain on infrastructure, such as roofs and power lines, increasing the likelihood of structural damage or power outages. 
+
+        In conclusion, the image of the red fire hydrant deep in the snow and the recently plowed sidewalk suggest that the city has faced a particularly severe winter season, with substantial snowfall that has likely caused various challenges and disruptions for its residents and infrastructure.
+    - input: >
+        A man is skiing in the open snow covered hills
+        A skier is making his way into the snow.
+        A skier on the foothills of a huge mountain range.
+        A skier looks at mountains while standing near a trail sign.
+        a single person skiing by an area with a lot of bushes
+      output: >
+        Question:
+        What is the skier doing?
+        ===
+        Answer:
+        The skier is skiing in the snow-covered hills, making his way through the snow and enjoying the beautiful mountain scenery. They are also standing near a trail sign, which indicates their location on the mountain.
+        ===
+        Question:
+        Are there any other people or skiers visible in the image?
+        ===
+        Answer:
+        No, there is only a single person skiing in the image, and they are surrounded by an area with a lot of bushes.
+        ===
+        Question:
+        What kind of skiing is the person doing? Cross-country or downhill?
+        ===
+        Answer:
+        Based on what I can see in the photo, it is not possible to definitively determine whether the skier is doing cross-country or downhill skiing. However, given the presence of a trail sign and the fact that they are skiing in the foothills, it is more likely that the skier is engaged in cross-country skiing. Downhill skiing typically takes place on more steep slopes and involves ski lifts, whereas cross-country skiing often occurs on relatively flatter terrain with marked trails.
+        ===
+        Question:
+        Can you explain cross-country and downhill skiing a bit more?
+        ===
+        Answer:
+        Cross-country skiing and downhill skiing are two distinct types of skiing, each with its own techniques, equipment, and terrain preferences.
+
+        1. Cross-Country Skiing:
+        Also known as Nordic skiing, cross-country skiing involves traversing relatively flat terrain or gentle slopes using skis and poles. It is a popular recreational and competitive sport that focuses on endurance, balance, and aerobic fitness. Cross-country skiers use their own locomotion to move across snow-covered terrain, rather than relying on ski lifts or other forms of assistance.
+        There are two main techniques in cross-country skiing:
+        - Classic: This technique involves skiing in parallel tracks, using a forward-and-backward gliding motion while keeping the skis parallel to each other. The skier uses their poles to propel themselves forward.
+        - Skate skiing: This technique is similar to ice skating, where the skier pushes off one ski at an angle and glides on the other. It requires a smooth, groomed surface and is typically faster than the classic technique.
+        Cross-country ski equipment consists of lightweight skis, boots, bindings, and poles. The boots are more flexible than those used in downhill skiing, allowing for better ankle movement and control.
+
+        2. Downhill Skiing:
+        Also known as alpine skiing, downhill skiing involves descending slopes at high speeds using skis and poles for balance and control. This sport is more focused on speed, technique, and navigating challenging terrain, including steep slopes, moguls, and even jumps.
+        Downhill skiing can be further categorized into several disciplines, such as slalom, giant slalom, super-G, and downhill racing. Each discipline has its own set of rules, courses, and ski equipment.
+        Downhill ski equipment includes heavier and stiffer skis, boots, bindings, and poles than those used in cross-country skiing. The boots are more rigid to provide better support and control during high-speed descents and sharp turns.
+
+        In summary, cross-country skiing is an endurance-based sport that involves traveling across flat or gently sloping terrain, while downhill skiing is focused on speed and technique as skiers navigate steeper slopes and challenging terrain. Both sports require specialized equipment and techniques, but they offer different experiences and challenges to participants.
+
+detail_description:
+  system_prompt: >
+    You are an AI visual assistant that can analyze a single image. You receive five sentences, each describing the same image you are observing. In addition, specific object locations within the image are given, along with detailed coordinates. These coordinates are in the form of bounding boxes, represented as (x1, y1, x2, y2) with floating numbers ranging from 0 to 1. These values correspond to the top left x, top left y, bottom right x, and bottom right y.
+
+    Using the provided caption and bounding box information, describe the scene in a detailed manner.
+
+    Instead of directly mentioning the bounding box coordinates, utilize this data to explain the scene using natural language. Include details like object counts, position of the objects, relative position between the objects.
+
+    When using the information from the caption and coordinates, directly explain the scene, and do not mention that the information source is the caption or the bounding box.  Always answer as if you are directly looking at the image.
+  system_prompt_instructions_variations:
+    - Describe the following image in detail
+    - Provide a detailed description of the given image
+    - Give an elaborate explanation of the image you see
+    - Share a comprehensive rundown of the presented image
+    - Offer a thorough analysis of the image
+    - Explain the various aspects of the image before you
+    - Clarify the contents of the displayed image with great detail
+    - Characterize the image using a well-detailed description
+    - Break down the elements of the image in a detailed manner
+    - Walk through the important details of the image
+    - Portray the image with a rich, descriptive narrative
+    - Narrate the contents of the image with precision
+    - Analyze the image in a comprehensive and detailed manner
+    - Illustrate the image through a descriptive explanation
+    - Examine the image closely and share its details
+    - Write an exhaustive depiction of the given image
+  instructions:
+    - Analyze the image in a comprehensive and detailed manner.
+    - Can you describe the main features of this image for me?
+    - Can you elaborate on the elements of the picture provided?
+    - Describe the following image.
+    - Explain the visual content of the image in great detail.
+    - What are the key elements in this picture?
+    - What do you see happening in this image?
+    - What do you think is going on in this snapshot?
+    - What is this photo about?
+    - Write a detailed description of the given image.
+  inputs:
+    - captions
+    - boxes
+  examples:
+    - input: >
+        A harbor filled with lots of boats next to a building.
+        A bicycle parked in front of several boats at a dock.
+        A red bicycle in front of a line of docked white yachts
+        A bike sits before boats which sit before a long building.
+        A bicycle is a convenient means of land transportation when you live on a boat.
+
+        bicycle: [0.287, 0.641, 0.507, 0.874]
+        bicycle: [0.566, 0.667, 0.63, 0.731]
+        boat: [0.318, 0.579, 0.575, 0.724]
+        boat: [0.704, 0.607, 0.818, 0.727]
+        boat: [0.818, 0.601, 0.942, 0.744]
+        boat: [0.002, 0.53, 0.243, 0.71]
+        boat: [0.541, 0.611, 0.668, 0.731]
+        person: [0.778, 0.527, 0.797, 0.57]
+        cup: [0.708, 0.733, 0.724, 0.758]
+        boat: [0.236, 0.532, 0.404, 0.64]
+        boat: [0.81, 0.632, 0.836, 0.676]
+        boat: [0.957, 0.526, 1.0, 0.752]
+      output: >
+        It is a harbor filled with numerous boats of various sizes docked next to a long building. Among the boats, there are a few white yachts lined up, standing out from the rest. There is a red bicycle prominently parked in front of the line of docked boats, serving as a convenient means of land transportation for those living on the boats. Another bicycle can be seen further back in the scene, near the middle of the harbor.
+
+        A person is visible near the right side of the harbor, possibly enjoying the view or attending to their boat. Additionally, there is a cup placed on a surface near the middle of the scene.
+    - input: >
+        A group of people standing outside of a black vehicle with various luggage.
+        Luggage surrounds a vehicle in an underground parking area
+        People try to fit all of their luggage in an SUV.
+        The sport utility vehicle is parked in the public garage, being packed for a trip
+        Some people with luggage near a van that is transporting it.
+
+        person: [0.681, 0.242, 0.774, 0.694]
+        person: [0.63, 0.222, 0.686, 0.516]
+        person: [0.444, 0.233, 0.487, 0.34]
+        backpack: [0.384, 0.696, 0.485, 0.914]
+        backpack: [0.755, 0.413, 0.846, 0.692]
+        suitcase: [0.758, 0.413, 0.845, 0.69]
+        suitcase: [0.1, 0.497, 0.173, 0.579]
+        bicycle: [0.282, 0.363, 0.327, 0.442]
+        car: [0.786, 0.25, 0.848, 0.322]
+        car: [0.783, 0.27, 0.827, 0.335]
+        car: [0.86, 0.254, 0.891, 0.3]
+        car: [0.261, 0.101, 0.787, 0.626]
+      output: >
+        The image is an underground parking area with a black sport utility vehicle (SUV) parked. There are three people in the scene, with one person standing closer to the left side of the vehicle, another person in the middle, and the third person on the right side. They are all working together to pack their luggage into the SUV for a trip. 
+
+        In the parking area, various luggage items are scattered around the vehicle. There are two backpacks, one located near the left rear wheel and the other closer to the right side of the vehicle. Additionally, there are two suitcases, one on the right side of the car and another further away near the center of the parking area. A bicycle can also be seen on the left side of the vehicle. 
+
+        Other cars are parked around the main SUV, with one car positioned behind it and slightly to the left, another behind and slightly to the right, and the third car further behind on the right side.
+    - input: >
+        A man holds a Wii-mote above his head while another looks on.
+        A guy and his friend are playing Nintendo Wii.
+        A young man is holding a video game remote over his head.
+        two men standing in a room while one plays with a wii mote
+        Some guys standing and playing a video game.
+
+        couch: [0.697, 0.759, 0.995, 1.0]
+        dining table: [0.426, 0.755, 1.0, 0.987]
+        person: [0.082, 0.252, 0.342, 1.0]
+        person: [0.399, 0.085, 0.742, 0.982]
+        remote: [0.477, 0.135, 0.516, 0.187]
+        sink: [0.016, 0.501, 0.063, 0.52]
+        potted plant: [0.798, 0.384, 0.888, 0.645]
+        refrigerator: [0.305, 0.389, 0.414, 0.547]
+        chair: [0.72, 0.509, 0.858, 0.725]
+      output: >
+        The image shows two men standing in a room, engaged in playing a video game on a Nintendo Wii console. One of the men is holding a Wii remote above his head with enthusiasm, while the other man looks on, likely enjoying the friendly competition. 
+
+        The room appears to be a living space with a couch located in the background and a dining table nearby. A potted plant can be seen placed close to the couch, and a chair is situated in the middle of the room. The room also features a kitchen area with a sink and a refrigerator visible in the background.
+complex_reasoning:
+  system_prompt: >
+    You are an AI visual assistant that can analyze a single image. You receive five sentences, each describing the same image you are observing. In addition, specific object locations within the image are given, along with detailed coordinates. These coordinates are in the form of bounding boxes, represented as (x1, y1, x2, y2) with floating numbers ranging from 0 to 1. These values correspond to the top left x, top left y, bottom right x, and bottom right y.
+
+    The task is to use the provided caption and bounding box information, create a plausible question about the image, and provide the answer in detail.
+
+    Create complex questions beyond describing the scene.
+    To answer such questions, one should require first understanding the visual content, then based on the background knowledge or reasoning, either explain why the things are happening that way, or provide guides and help to user's request.  Make the question challenging by not including the visual content details in the question so that the user needs to reason about that first.
+
+    Instead of directly mentioning the bounding box coordinates, utilize this data to explain the scene using natural language. Include details like object counts, position of the objects, relative position between the objects.  
+
+    When using the information from the caption and coordinates, directly explain the scene, and do not mention that the information source is the caption or the bounding box.  Always answer as if you are directly looking at the image.
+  split_user_assistant: ===
+  stopwords: ["Question:", "Answer:"]
+  inputs:
+    - captions
+    - boxes
+  examples:
+    - input: >
+        A man wearing multiple neck ties making a goofy face.
+        A man in a white shirt wearing very many ties.
+        a man with ties on poses for a picture
+        A man wearing multiple ties on his neck.
+        A young man smiles while wearing several ties.
+  
+        tie: [ 0.574, 0.298, 0.752, 0.704 ]
+        tie: [ 0.464, 0.339, 0.639, 0.789 ]
+        tie: [ 0.349, 0.363, 0.563, 0.732 ]
+        tie: [ 0.259, 0.255, 0.668, 0.805 ]
+        person: [ 0.019, 0.065, 0.962, 0.988 ]
+        person: [ 0.0, 0.24, 0.214, 1.0 ]
+        tie: [ 0.316, 0.778, 0.443, 0.867 ]
+        tie: [ 0.386, 0.707, 0.496, 0.801 ]
+        tie: [ 0.251, 0.354, 0.402, 0.747 ]
+        tie: [ 0.44, 0.318, 0.63, 0.397 ]
+        tie: [ 0.566, 0.33, 0.655, 0.543 ]
+        tie: [ 0.25, 0.409, 0.359, 0.556 ]
+      output: >
+        Question:
+        What is unusual about this photo?
+        ===
+        Answer:
+        In the photo, the man is wearing a total of ten ties around his neck. This is considered unusual because it is not common for someone to wear multiple ties at once. In a typical setting, a person would wear only one tie. The man's goofy facial expression also adds to the unconventional and humorous nature of the image.
+    - input: >
+        A group of people standing outside of a black vehicle with various luggage.
+        Luggage surrounds a vehicle in an underground parking area
+        People try to fit all of their luggage in an SUV.
+        The sport utility vehicle is parked in the public garage, being packed for a trip
+        Some people with luggage near a van that is transporting it.
+
+        person: [0.681, 0.242, 0.774, 0.694]
+        person: [0.63, 0.222, 0.686, 0.516]
+        person: [0.444, 0.233, 0.487, 0.34]
+        backpack: [0.384, 0.696, 0.485, 0.914]
+        backpack: [0.755, 0.413, 0.846, 0.692]
+        suitcase: [0.758, 0.413, 0.845, 0.69]
+        suitcase: [0.1, 0.497, 0.173, 0.579]
+        bicycle: [0.282, 0.363, 0.327, 0.442]
+        car: [0.786, 0.25, 0.848, 0.322]
+        car: [0.783, 0.27, 0.827, 0.335]
+        car: [0.86, 0.254, 0.891, 0.3]
+        car: [0.261, 0.101, 0.787, 0.626]
+      output: >
+        Question:
+        What challenges do these people face?
+        ===
+        Answer:
+        In the image, a group of people is standing outside a black SUV in a parking area, surrounded by various pieces of luggage, including suitcases and backpacks. They are facing the challenge of fitting all their luggage into the black SUV. There are multiple suitcases and backpacks to be packed, which suggests that the group has a significant amount of belongings to accommodate. They might have to strategize and arrange the luggage efficiently to ensure that everything fits properly into the vehicle. Additionally, they need to consider the comfort of the passengers and visibility while driving, so the placement of the luggage must not obstruct the driver's view or make the passengers uncomfortable during the trip.
+    - input: >
+        There is a movie theater that displays the show times above the doors.
+        A red fire hydrant is deep in the snow.
+        The fire hydrant is in the snow near a recently plowed sidewalk.
+        This city has had a very hard winter with snow.
+        A hotel for dogs in the snow in winter.
+
+        fire hydrant: [0.326, 0.612, 0.426, 0.72]
+      output: >
+        Question:
+        What challenges might this city face?
+        ===
+        Answer:
+        The city faces challenges due to the harsh winter conditions and heavy snowfall. In the image, a red fire hydrant is almost buried deep in the snow, which indicates the significant amount of snow the city has experienced. This can lead to various challenges such as difficulties in transportation, increased risk of accidents, and disruptions to daily life. For example, the recently plowed sidewalk near the fire hydrant shows that the city has to constantly clear snow from roads and sidewalks to maintain access and safety for pedestrians and vehicles. Moreover, emergency services, like firefighters, might face challenges accessing crucial equipment, such as fire hydrants, during emergencies due to the snow accumulation. This highlights the importance of effective snow management strategies and preparedness in such cities to minimize the impact of harsh winter conditions on residents and essential services.
+        

@@ -1,0 +1,209 @@
+#
+conversation:
+  system_prompt: >
+    As an AI visual assistant, analyze a single image described by five sentences. Create a dialogue between you and a person inquiring about this photo. Your responses should be from the perspective of a visual AI analyzing the image.
+
+    Include questions about the image's visual content, such as object types, counts, actions, locations, and relative positions. Only ask questions with definite answers based on the image's content. Avoid uncertain details.
+    Do not provide details about the image in the question!
+
+    Also, include complex questions related to the image's content, like the background knowledge of objects or events depicted. Provide detailed, well-organized answers to these complex questions, using examples or reasoning steps if necessary.
+  split_user_assistant: ===
+  stopwords: ["Question:", "Answer:"]
+  inputs:
+    - captions
+  examples:
+    - input: >
+        There is a movie theater that displays the show times above the doors.
+        A red fire hydrant is deep in the snow.
+        The fire hydrant is in the snow near a recently plowed sidewalk.
+        This city has had a very hard winter with snow.
+        A hotel for dogs in the snow in winter.
+      output: >
+        Question:
+        What color is the fire hydrant in the image?
+        ===
+        Answer:
+        The fire hydrant in the image is red.
+        ===
+        Question:
+        Is the fire hydrant fully covered by snow or partially visible?
+        ===
+        Answer:
+        The fire hydrant is partially visible, with a significant portion of it covered by the deep snow.
+detail_description:
+  system_prompt: >
+    Analyze an image based on five sentences and bounding box coordinates provided as (x1, y1, x2, y2). Use these details to describe the scene naturally, focusing on object counts and their positions. Avoid mentioning the source of information; respond as if observing the image directly.
+  system_prompt_instructions_variations:
+    - Describe the following image in detail
+    - Provide a detailed description of the given image
+    - Give an elaborate explanation of the image you see
+    - Share a comprehensive rundown of the presented image
+    - Offer a thorough analysis of the image
+    - Explain the various aspects of the image before you
+    - Clarify the contents of the displayed image with great detail
+    - Characterize the image using a well-detailed description
+    - Break down the elements of the image in a detailed manner
+    - Walk through the important details of the image
+    - Portray the image with a rich, descriptive narrative
+    - Narrate the contents of the image with precision
+    - Analyze the image in a comprehensive and detailed manner
+    - Illustrate the image through a descriptive explanation
+    - Examine the image closely and share its details
+    - Write an exhaustive depiction of the given image
+  instructions:
+    - Analyze the image in a comprehensive and detailed manner.
+    - Can you describe the main features of this image for me?
+    - Can you elaborate on the elements of the picture provided?
+    - Describe the following image.
+    - Explain the visual content of the image in great detail.
+    - What are the key elements in this picture?
+    - What do you see happening in this image?
+    - What do you think is going on in this snapshot?
+    - What is this photo about?
+    - Write a detailed description of the given image.
+  inputs:
+    - captions
+    - boxes
+  examples:
+    - input: >
+        A harbor filled with lots of boats next to a building.
+        A bicycle parked in front of several boats at a dock.
+        A red bicycle in front of a line of docked white yachts
+        A bike sits before boats which sit before a long building.
+        A bicycle is a convenient means of land transportation when you live on a boat.
+
+        bicycle: [0.287, 0.641, 0.507, 0.874]
+        bicycle: [0.566, 0.667, 0.63, 0.731]
+        boat: [0.318, 0.579, 0.575, 0.724]
+        boat: [0.704, 0.607, 0.818, 0.727]
+        boat: [0.818, 0.601, 0.942, 0.744]
+        boat: [0.002, 0.53, 0.243, 0.71]
+        boat: [0.541, 0.611, 0.668, 0.731]
+        person: [0.778, 0.527, 0.797, 0.57]
+        cup: [0.708, 0.733, 0.724, 0.758]
+        boat: [0.236, 0.532, 0.404, 0.64]
+        boat: [0.81, 0.632, 0.836, 0.676]
+        boat: [0.957, 0.526, 1.0, 0.752]
+      output: >
+        The harbor is filled with many boats, including some white yachts, next to a long building. A red bicycle is parked prominently in front of the boats, with another bike further back.
+        
+        Near the right side of the harbor, a person is visible, possibly admiring the view or tending to their boat. There's also a cup placed on a surface in the middle of the scene.
+#    - input: >
+#        A group of people standing outside of a black vehicle with various luggage.
+#        Luggage surrounds a vehicle in an underground parking area
+#        People try to fit all of their luggage in an SUV.
+#        The sport utility vehicle is parked in the public garage, being packed for a trip
+#        Some people with luggage near a van that is transporting it.
+#
+#        person: [0.681, 0.242, 0.774, 0.694]
+#        person: [0.63, 0.222, 0.686, 0.516]
+#        person: [0.444, 0.233, 0.487, 0.34]
+#        backpack: [0.384, 0.696, 0.485, 0.914]
+#        backpack: [0.755, 0.413, 0.846, 0.692]
+#        suitcase: [0.758, 0.413, 0.845, 0.69]
+#        suitcase: [0.1, 0.497, 0.173, 0.579]
+#        bicycle: [0.282, 0.363, 0.327, 0.442]
+#        car: [0.786, 0.25, 0.848, 0.322]
+#        car: [0.783, 0.27, 0.827, 0.335]
+#        car: [0.86, 0.254, 0.891, 0.3]
+#        car: [0.261, 0.101, 0.787, 0.626]
+#      output: >
+#        The image depicts an underground parking area with a black SUV and three people packing luggage for a trip.
+#
+#        Near the left rear wheel is a backpack, with another on the vehicle's right side. There are also two suitcases, one by the right side of the car and another near the parking area's center. A bicycle is visible on the SUV's left side.
+#
+#        Surrounding the main SUV are other cars: one behind and slightly to the left, another behind and to the right, and a third further back on the right side.
+#    - input: >
+#        A man holds a Wii-mote above his head while another looks on.
+#        A guy and his friend are playing Nintendo Wii.
+#        A young man is holding a video game remote over his head.
+#        two men standing in a room while one plays with a wii mote
+#        Some guys standing and playing a video game.
+#
+#        couch: [0.697, 0.759, 0.995, 1.0]
+#        dining table: [0.426, 0.755, 1.0, 0.987]
+#        person: [0.082, 0.252, 0.342, 1.0]
+#        person: [0.399, 0.085, 0.742, 0.982]
+#        remote: [0.477, 0.135, 0.516, 0.187]
+#        sink: [0.016, 0.501, 0.063, 0.52]
+#        potted plant: [0.798, 0.384, 0.888, 0.645]
+#        refrigerator: [0.305, 0.389, 0.414, 0.547]
+#        chair: [0.72, 0.509, 0.858, 0.725]
+#      output: >
+#        The image depicts two men in a room playing a Nintendo Wii game; one energetically raises a Wii remote, the other watches, enjoying the competition.
+#
+#        The room, a living space, includes a couch, dining table, a potted plant near the couch, a centrally placed chair, and a kitchen area with a visible sink and refrigerator.
+complex_reasoning:
+  system_prompt: >
+    As an AI visual assistant, analyze an image described by five sentences and specific object locations given as bounding box coordinates (x1, y1, x2, y2). Create a challenging question about the image requiring understanding of visual content and background knowledge. Avoid direct references to visual details in the question. Use the bounding box data to describe the scene in natural language, focusing on object counts and positions without mentioning the data source. Answer as if observing the image directly.
+  split_user_assistant: ===
+  stopwords: ["Question:", "Answer:"]
+  inputs:
+    - captions
+    - boxes
+  examples:
+    - input: >
+        A man wearing multiple neck ties making a goofy face.
+        A man in a white shirt wearing very many ties.
+        a man with ties on poses for a picture
+        A man wearing multiple ties on his neck.
+        A young man smiles while wearing several ties.
+  
+        tie: [ 0.574, 0.298, 0.752, 0.704 ]
+        tie: [ 0.464, 0.339, 0.639, 0.789 ]
+        tie: [ 0.349, 0.363, 0.563, 0.732 ]
+        tie: [ 0.259, 0.255, 0.668, 0.805 ]
+        person: [ 0.019, 0.065, 0.962, 0.988 ]
+        person: [ 0.0, 0.24, 0.214, 1.0 ]
+        tie: [ 0.316, 0.778, 0.443, 0.867 ]
+        tie: [ 0.386, 0.707, 0.496, 0.801 ]
+        tie: [ 0.251, 0.354, 0.402, 0.747 ]
+        tie: [ 0.44, 0.318, 0.63, 0.397 ]
+        tie: [ 0.566, 0.33, 0.655, 0.543 ]
+        tie: [ 0.25, 0.409, 0.359, 0.556 ]
+      output: >
+        Question:
+        What is unusual about this photo?
+        ===
+        Answer:
+        In the photo, the man is wearing a total of ten ties around his neck. This is considered unusual because it is not common for someone to wear multiple ties at once. In a typical setting, a person would wear only one tie. The man's goofy facial expression also adds to the unconventional and humorous nature of the image.
+#    - input: >
+#        A group of people standing outside of a black vehicle with various luggage.
+#        Luggage surrounds a vehicle in an underground parking area
+#        People try to fit all of their luggage in an SUV.
+#        The sport utility vehicle is parked in the public garage, being packed for a trip
+#        Some people with luggage near a van that is transporting it.
+#
+#        person: [0.681, 0.242, 0.774, 0.694]
+#        person: [0.63, 0.222, 0.686, 0.516]
+#        person: [0.444, 0.233, 0.487, 0.34]
+#        backpack: [0.384, 0.696, 0.485, 0.914]
+#        backpack: [0.755, 0.413, 0.846, 0.692]
+#        suitcase: [0.758, 0.413, 0.845, 0.69]
+#        suitcase: [0.1, 0.497, 0.173, 0.579]
+#        bicycle: [0.282, 0.363, 0.327, 0.442]
+#        car: [0.786, 0.25, 0.848, 0.322]
+#        car: [0.783, 0.27, 0.827, 0.335]
+#        car: [0.86, 0.254, 0.891, 0.3]
+#        car: [0.261, 0.101, 0.787, 0.626]
+#      output: >
+#        Question:
+#        What challenges do these people face?
+#        ===
+#        Answer:
+#        In the image, a group of people is standing outside a black SUV in a parking area, surrounded by various pieces of luggage, including suitcases and backpacks. They are facing the challenge of fitting all their luggage into the black SUV. There are multiple suitcases and backpacks to be packed, which suggests that the group has a significant amount of belongings to accommodate. They might have to strategize and arrange the luggage efficiently to ensure that everything fits properly into the vehicle. Additionally, they need to consider the comfort of the passengers and visibility while driving, so the placement of the luggage must not obstruct the driver's view or make the passengers uncomfortable during the trip.
+#    - input: >
+#        There is a movie theater that displays the show times above the doors.
+#        A red fire hydrant is deep in the snow.
+#        The fire hydrant is in the snow near a recently plowed sidewalk.
+#        This city has had a very hard winter with snow.
+#        A hotel for dogs in the snow in winter.
+#
+#        fire hydrant: [0.326, 0.612, 0.426, 0.72]
+#      output: >
+#        Question:
+#        What challenges might this city face?
+#        ===
+#        Answer:
+#        The city faces challenges due to the harsh winter conditions and heavy snowfall. In the image, a red fire hydrant is almost buried deep in the snow, which indicates the significant amount of snow the city has experienced. This can lead to various challenges such as difficulties in transportation, increased risk of accidents, and disruptions to daily life. For example, the recently plowed sidewalk near the fire hydrant shows that the city has to constantly clear snow from roads and sidewalks to maintain access and safety for pedestrians and vehicles. Moreover, emergency services, like firefighters, might face challenges accessing crucial equipment, such as fire hydrants, during emergencies due to the snow accumulation. This highlights the importance of effective snow management strategies and preparedness in such cities to minimize the impact of harsh winter conditions on residents and essential services.
+#

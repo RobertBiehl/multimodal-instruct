@@ -1,0 +1,7 @@
+pycocotools
+
+datasets
+transformers~=4.36.2
+torch
+tqdm~=4.66.1
+PyYAML~=6.0.1
