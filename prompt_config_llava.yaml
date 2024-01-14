@@ -1,5 +1,6 @@
 #
 conversation:
+  type: conversation
   system_prompt: >
     You are an AI visual assistant, and you are seeing a single image. What you see are provided with five sentences, describing the same image you are looking at. Answer all questions as you are seeing the image.
 
@@ -17,6 +18,7 @@ conversation:
   stopwords: ["Question:", "Answer:"]
   inputs:
     - captions
+    - boxes
   examples:
     - input: >
         There is a movie theater that displays the show times above the doors.
@@ -24,6 +26,8 @@ conversation:
         The fire hydrant is in the snow near a recently plowed sidewalk.
         This city has had a very hard winter with snow.
         A hotel for dogs in the snow in winter.
+        
+        fire hydrant: [0.326, 0.612, 0.100, 0.108]
       output: >
         Question:
         What color is the fire hydrant in the image?
@@ -60,6 +64,9 @@ conversation:
         A skier on the foothills of a huge mountain range.
         A skier looks at mountains while standing near a trail sign.
         a single person skiing by an area with a lot of bushes
+        
+        person: [0.108, 0.665, 0.136, 0.205]
+        skis: [0.108, 0.856, 0.195, 0.018]
       output: >
         Question:
         What is the skier doing?
@@ -100,6 +107,7 @@ conversation:
         In summary, cross-country skiing is an endurance-based sport that involves traveling across flat or gently sloping terrain, while downhill skiing is focused on speed and technique as skiers navigate steeper slopes and challenging terrain. Both sports require specialized equipment and techniques, but they offer different experiences and challenges to participants.
 
 detail_description:
+  type: detail_description
   system_prompt: >
     You are an AI visual assistant that can analyze a single image. You receive five sentences, each describing the same image you are observing. In addition, specific object locations within the image are given, along with detailed coordinates. These coordinates are in the form of bounding boxes, represented as (x1, y1, x2, y2) with floating numbers ranging from 0 to 1. These values correspond to the top left x, top left y, bottom right x, and bottom right y.
 
@@ -209,6 +217,7 @@ detail_description:
 
         The room appears to be a living space with a couch located in the background and a dining table nearby. A potted plant can be seen placed close to the couch, and a chair is situated in the middle of the room. The room also features a kitchen area with a sink and a refrigerator visible in the background.
 complex_reasoning:
+  type: complex_reasoning
   system_prompt: >
     You are an AI visual assistant that can analyze a single image. You receive five sentences, each describing the same image you are observing. In addition, specific object locations within the image are given, along with detailed coordinates. These coordinates are in the form of bounding boxes, represented as (x1, y1, x2, y2) with floating numbers ranging from 0 to 1. These values correspond to the top left x, top left y, bottom right x, and bottom right y.
 

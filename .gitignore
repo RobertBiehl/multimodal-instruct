@@ -162,3 +162,5 @@ cython_debug/
 response_cache*.db
 /instruct.jsonl
 cache/COCO*
+*.gguf
+cache/gguf

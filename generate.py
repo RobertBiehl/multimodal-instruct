@@ -1,9 +1,14 @@
 import argparse
+import asyncio
 import json
 import re
 
 from tqdm import tqdm
 
+from conversation import ConversationBatchService
+from conversation.huggingface import HuggingfaceBatchService
+from conversation.llama_cpp import LLaMACppBatchService
+from conversation.openai import OpenAIBatchService
 from enum_definitions import *
 from data_definitions import *
 from typing import Iterator
@@ -46,10 +51,17 @@ def main():
     #                     help="Context appended to output questions, visible at test time (default: none). Available: " + ", ".join(
     #                         [qc.value for qc in QuestionContext]))
 
-    parser.add_argument("--model_source", default="huggingface")
+    parser.add_argument("--model_source", default="huggingface",
+                        type=ModelSourceType,
+                        choices=list(ModelSourceType),
+                        help="if huggingface: model must support conversational interface, "
+                             "see https://huggingface.co/models?filter=conversational")
 
     parser.add_argument("--model", default="meta-llama/Llama-2-7b-chat-hf", type=str,
-                        help="LLM to use for dataset generation. Huggingface model with chat support.")
+                        help="LLM to use for dataset generation.")
+
+    parser.add_argument("--openai_base_url", default=None, type=str,
+                        help="Base url of OpenAI compatible endpoint. Default is official OpenAI API endpoint.")
 
     parser.add_argument("--prompt_config", default="prompt_config_llava.yaml", type=str,
                         help="Prompt config")
@@ -62,38 +74,68 @@ def main():
     print("Output Path: ", args.output_path)
     print("Output Format: ", args.output_format)
 
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(run(args))
+
+
+async def run(args):
     # model inference
-    if args.model_source == "openai":
-        def pipe(messages):
-            from openai import OpenAI
-            client = OpenAI()
-
-            response = client.chat.completions.create(model=args.model, messages=messages)
-
-            return response.choices[0].message.content
+    conversation_service: ConversationBatchService
+    if args.model_source == ModelSourceType.OPENAI:
+        conversation_service = OpenAIBatchService(args.model, args.openai_base_url)
+    elif args.model_source == ModelSourceType.LLAMA_CPP:
+        conversation_service = LLaMACppBatchService(args.model)
+    elif args.model_source == ModelSourceType.HUGGINGFACE:
+        conversation_service = HuggingfaceBatchService(args.model)
     else:
-        internal_pipe = transformers.pipeline("conversational", args.model)
-
-        def pipe(messages):
-            return internal_pipe(messages).generated_responses[-1]
+        raise ValueError
 
     pipe_name = re.sub(r'\W+', '_', args.model).lower()
 
     with open(args.prompt_config, 'r') as file:
-        prompt_config = yaml.safe_load(file)
+        prompt_configs = yaml.safe_load(file)
 
-    with open(args.output_path, 'w') as file:
-        for source in args.sources:
-            # TODO support more than coco
-            generator: Iterator[Context] = coco.COCOLoader(source.value, args.dataset_storage_path)
+    output_file = open(args.output_path, 'w')
 
-            generator_wrapper = tqdm(generator, desc="Generating samples")
-            for context in generator_wrapper:
-                samples: [Sample] = generate_samples(context, pipe, prompt_config, pipe_name)
-                for sample in samples:
-                    write_str = json.dumps(sample, default=lambda x: x.__dict__)
-                    generator_wrapper.set_description(write_str)
-                    file.write(write_str + '\n')
+    def on_result(question_id: str, result: str, context: Context, prompt_config):
+        samples = process_llm_result(question_id, result, context, prompt_config)
+        for sample in samples:
+            write_str = json.dumps(sample, default=lambda x: x.__dict__)
+            output_file.write(write_str + '\n')
+
+    conversation_service.set_on_result(on_result)
+
+    # process datasets
+    for source in args.sources:
+        # TODO support more than coco
+        generator: Iterator[Context] = coco.COCOLoader(source.value, args.dataset_storage_path)
+
+        generator_wrapper = tqdm(generator, desc="Generating samples")
+
+        tasks: List[asyncio.Task] = []
+        for i, context in enumerate(generator_wrapper):
+            if i > 64:
+                break
+            for prompt_config in prompt_configs.values():
+                messages = generate_samples(context, prompt_config)
+
+                # run pipeline and cache
+                messages_hash = hashlib.sha256(json.dumps(messages, sort_keys=True).encode('utf-8')).hexdigest()
+                question_id = f"{pipe_name}_{messages_hash}_{prompt_config['type']}"
+                # print(f"Submitting {question_id}")
+
+                task = await conversation_service.submit(question_id, messages, context=context, prompt_config=prompt_config)
+
+                cancelled = [x for x in tasks if task.cancelled()]
+                # print(f"{len(cancelled)} cancelled tasks")
+                tasks = [x for x in tasks if not task.done() and not task.cancelled()] + [task]
+                generator_wrapper.set_description(f"{len(tasks)} running tasks")
+                generator_wrapper.refresh()
+
+        await asyncio.gather(*tasks)
+
+    await conversation_service.finish()
+    output_file.close()
 
 
 if __name__ == "__main__":
