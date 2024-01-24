@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import json
+import logging
 import re
 
 from tqdm import tqdm
@@ -110,31 +111,37 @@ async def run(args):
         # TODO support more than coco
         generator: Iterator[Context] = coco.COCOLoader(source.value, args.dataset_storage_path)
 
-        generator_wrapper = tqdm(generator, desc="Generating samples")
+        num_expected_requests = len(generator) * len(prompt_configs.values())
+        with tqdm(total=num_expected_requests, desc="Generating samples") as progress_bar:
+            def on_result_progress(*vargs, **kwargs):
+                progress_bar.update(1)
+                progress_bar.set_description(f"{conversation_service.num_in_progress} running, {conversation_service.num_temp_failed} temp errors, {conversation_service.num_failed} failed (completed from cache {conversation_service.num_completed_from_cache})")
+                progress_bar.refresh()
+                on_result(*vargs, **kwargs)
 
-        tasks: List[asyncio.Task] = []
-        for i, context in enumerate(generator_wrapper):
-            if i > 64:
-                break
-            for prompt_config in prompt_configs.values():
-                messages = generate_samples(context, prompt_config)
+            conversation_service.set_on_result(on_result_progress)
 
-                # run pipeline and cache
-                messages_hash = hashlib.sha256(json.dumps(messages, sort_keys=True).encode('utf-8')).hexdigest()
-                question_id = f"{pipe_name}_{messages_hash}_{prompt_config['type']}"
-                # print(f"Submitting {question_id}")
+            tasks: List[asyncio.Task] = []
+            for i, context in enumerate(generator):
+                for prompt_config in prompt_configs.values():
+                    messages = generate_samples(context, prompt_config)
 
-                task = await conversation_service.submit(question_id, messages, context=context, prompt_config=prompt_config)
+                    # run pipeline and cache
+                    messages_hash = hashlib.sha256(json.dumps(messages, sort_keys=True).encode('utf-8')).hexdigest()
+                    question_id = f"{pipe_name}_{generator.name}_{messages_hash}_{prompt_config['type']}"
 
-                cancelled = [x for x in tasks if task.cancelled()]
-                # print(f"{len(cancelled)} cancelled tasks")
-                tasks = [x for x in tasks if not task.done() and not task.cancelled()] + [task]
-                generator_wrapper.set_description(f"{len(tasks)} running tasks")
-                generator_wrapper.refresh()
+                    task = await conversation_service.submit(question_id, messages, context=context, prompt_config=prompt_config)
+                    tasks.append(task)
 
-        await asyncio.gather(*tasks)
+                if len(tasks) > 1024:
+                    logging.info(f"Gathering {len(tasks)} tasks.")
+                    await asyncio.gather(*tasks)
+                    tasks.clear()
 
-    await conversation_service.finish()
+            await asyncio.gather(*tasks)
+            await conversation_service.finish()
+
+
     output_file.close()
 
 

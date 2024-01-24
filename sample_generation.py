@@ -13,8 +13,12 @@ def generate_samples(context: Context, prompt_config) -> [Dict]:
     include_boxes = "boxes" in prompt_config["inputs"]
 
     captions_str = "\n".join([x.caption for x in context.captions]) if include_captions else ""
+
+    def round_bbox(bbox):
+        return [round(bbox[0], 3), round(bbox[0], 3), round(bbox[0], 3), round(bbox[0], 3)]
+
     # TODO: limit decimal places for bbox
-    object_str = ("\n\n" + "\n".join([f"{box.category_name}: {box.bbox}" for box in context.boxes])) \
+    object_str = ("\n\n" + "\n".join([f"{box.category_name}: {round_bbox(box.bbox)}" for box in context.boxes])) \
         if len(context.boxes) > 0 and include_boxes else ""
 
     instruction = captions_str + object_str
@@ -33,6 +37,10 @@ def generate_samples(context: Context, prompt_config) -> [Dict]:
 def process_llm_result(question_id: str, result: str, context: Context, prompt_config) -> [Sample]:
     samples: List[Sample] = []
 
+    if isinstance(result, dict):
+        print(f"{question_id} Error result: {result}")
+        return []
+
     type = prompt_config["type"]
 
     def remove_stopwords_strip(text: str) -> str:
@@ -43,8 +51,9 @@ def process_llm_result(question_id: str, result: str, context: Context, prompt_c
 
     if "split_user_assistant" in prompt_config and prompt_config["split_user_assistant"]:
         result = result.split(prompt_config["split_user_assistant"])
-        assert len(
-            result) % 2 == 0, f"{type}: Expecting on assistant answer for every user question. Got {len(result)} messages. \n result: {result}"
+        if not len(result) % 2 == 0:
+            print(f"Error {type}: Expecting on assistant answer for every user question. Got {len(result)} messages. \n result: {result}")
+            return []
         for i in range(0, len(result), 2):
             samples.append(Sample(
                 id=question_id,
