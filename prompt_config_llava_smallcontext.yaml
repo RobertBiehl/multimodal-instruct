@@ -1,5 +1,6 @@
 #
 conversation:
+  type: conversation
   system_prompt: >
     As an AI visual assistant, analyze a single image described by five sentences. Create a dialogue between you and a person inquiring about this photo. Your responses should be from the perspective of a visual AI analyzing the image.
 
@@ -31,6 +32,7 @@ conversation:
         Answer:
         The fire hydrant is partially visible, with a significant portion of it covered by the deep snow.
 detail_description:
+  type: detail_description
   system_prompt: >
     Analyze an image based on five sentences and bounding box coordinates provided as (x1, y1, x2, y2). Use these details to describe the scene naturally, focusing on object counts and their positions. Avoid mentioning the source of information; respond as if observing the image directly.
   system_prompt_instructions_variations:
@@ -134,6 +136,7 @@ detail_description:
 #
 #        The room, a living space, includes a couch, dining table, a potted plant near the couch, a centrally placed chair, and a kitchen area with a visible sink and refrigerator.
 complex_reasoning:
+  type: complex_reasoning
   system_prompt: >
     As an AI visual assistant, analyze an image described by five sentences and specific object locations given as bounding box coordinates (x1, y1, x2, y2). Create a challenging question about the image requiring understanding of visual content and background knowledge. Avoid direct references to visual details in the question. Use the bounding box data to describe the scene in natural language, focusing on object counts and positions without mentioning the data source. Answer as if observing the image directly.
   split_user_assistant: ===

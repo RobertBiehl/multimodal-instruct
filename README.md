@@ -8,7 +8,9 @@ Goals:
 3. Add more modalities other than images.
 
 ## Work in progress
-- [ ] improve inference speed
+- [ ] improve inference speed of huggingface models with batching
+- [ ] improve inference speed of llama.cpp models with batching
+- [ ] improve inference speed of OpenAI API with parallel requests
 - [ ] fully process with LLAMA-2 for first commercially usable version for LLaVA training.
 - [ ] add LICENSE information to generated files
 - [ ] add support for vision instruct dataset creation from OpenImages v7 dataset (captions, boxes, positive and negative image labels, etc.)
@@ -22,8 +24,14 @@ Goals:
 ### Generate dataset with adjusted prompts for sub 4096 token context model
 ```python generate.py COCO2014 --model_source huggingface --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 --prompt_config prompt_config_llava_smallcontext.yaml```
 
-### Generate dataset with openai API
+### Generate dataset with llama.cpp gguf model
+```python generate.py COCO2014 --model_source llama.cpp --model ./PATH/TO/MODEL.gguf```
+
+### Generate dataset with OpenAI API
 ```python generate.py COCO2014 --model_source openai --model gpt-3.5-turbo```
+
+### Generate dataset with custom OpenAI API endpoint
+```python generate.py COCO2014 --model_source openai --model mymodel --openai_base_url```
 
 ## Notes
 * Huggingface chat models: only supports models with chat templates in `tokenizer_config.json`

@@ -18,6 +18,10 @@ class COCOLoader:
         self.coco_instances: COCO = COCO(str(instance_annotation_file_local_path))
         self.coco_captions: COCO = COCO(str(captions_annotation_file_local_path))
 
+    @property
+    def name(self) -> str:
+        return self.dataset
+
     def download(self, dataset: str) -> Path:
         data_urls = {
             'COCO2014': 'http://images.cocodataset.org/zips/train2014.zip',
