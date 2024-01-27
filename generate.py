@@ -18,7 +18,7 @@ import yaml
 import transformers
 import torch
 
-from dataset import coco
+from dataset import coco, open_images
 from sample_generation import *
 
 
@@ -91,6 +91,8 @@ async def run(args):
     else:
         raise ValueError
 
+
+
     pipe_name = re.sub(r'\W+', '_', args.model).lower()
 
     with open(args.prompt_config, 'r') as file:
@@ -108,8 +110,14 @@ async def run(args):
 
     # process datasets
     for source in args.sources:
-        # TODO support more than coco
-        generator: Iterator[Context] = coco.COCOLoader(source.value, args.dataset_storage_path)
+        # data loader
+        generator: Iterator[Context]
+        if source == Source.COCO2014 or source == Source.COCO2017:
+            generator = coco.COCOLoader(source.value, args.dataset_storage_path)
+        elif source == Source.OPENIMAGESV7:
+            generator: Iterator[Context] = open_images.OpenImagesLoader(args.dataset_storage_path)
+        else:
+            raise ValueError
 
         num_expected_requests = len(generator) * len(prompt_configs.values())
         with tqdm(total=num_expected_requests, desc="Generating samples") as progress_bar:

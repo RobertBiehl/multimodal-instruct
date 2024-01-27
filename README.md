@@ -8,13 +8,15 @@ Goals:
 3. Add more modalities other than images.
 
 ## Work in progress
+- [x] improve inference speed of OpenAI API with parallel requests
+- [x] OpenImages v7 support: captions, boxes
+- [ ] OpenImages v7 support for positive and negative image labels in  dataset
+- [ ] fully process with Mistral 7b for first commercially usable version for LLaVA training.
+- [ ] add LICENSE information to generated files
+- [ ] add support for motion data instruction dataset creation (e.g. from HumanML3D)
+- [ ] fully process with LLAMA-2 for first commercially usable version for LLaVA training.
 - [ ] improve inference speed of huggingface models with batching
 - [ ] improve inference speed of llama.cpp models with batching
-- [ ] improve inference speed of OpenAI API with parallel requests
-- [ ] fully process with LLAMA-2 for first commercially usable version for LLaVA training.
-- [ ] add LICENSE information to generated files
-- [ ] add support for vision instruct dataset creation from OpenImages v7 dataset (captions, boxes, positive and negative image labels, etc.)
-- [ ] add support for motion data instruction dataset creation (e.g. from HumanML3D)
 
 ## Usage Examples
 

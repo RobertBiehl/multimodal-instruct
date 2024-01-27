@@ -10,6 +10,12 @@ class Caption:
 class Box:
     category_name: str
     bbox: List[float]  # normalized [x, y, width, height]
+    confidence: Optional[float]
+    is_occluded: Optional[bool]
+    is_truncated: Optional[bool]
+    is_group_of: Optional[bool]
+    is_depiction: Optional[bool]
+    is_inside: Optional[bool]
 
 @dataclass
 class Context:
