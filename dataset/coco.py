@@ -87,7 +87,7 @@ class COCOLoader:
 
     def __iter__(self) -> Iterator[Context]:
         def normalize_box(box, sz):
-            return [box[0]/sz[0], box[1]/sz[1], box[2]/sz[0], box[3]/sz[1]]
+            return [box[0]/sz[0], box[1]/sz[1], (box[0] + box[2])/sz[0], (box[1] + box[3])/sz[1]]
 
         imgIds = self.coco_captions.getImgIds()
         for imgId in imgIds:

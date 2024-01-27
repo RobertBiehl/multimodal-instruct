@@ -58,8 +58,8 @@ class OpenImagesLoader:
         with open(file_path) as f:
             labels = f.readline().split(",")
 
-            def normalize_box(xMin,xMax,yMin,yMax):
-                return [xMin, yMin, xMax-xMin, yMax-yMin]
+            def normalize_box(xMin, xMax, yMin, yMax):
+                return [xMin, yMin, xMax, yMax]
 
             def extract_box(line):
                 data = line.split(",")

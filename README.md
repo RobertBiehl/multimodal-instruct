@@ -18,6 +18,27 @@ Goals:
 - [ ] improve inference speed of huggingface models with batching
 - [ ] improve inference speed of llama.cpp models with batching
 
+
+# Datasets and  Prompt Configs
+
+To generate a multimodal instruction dataset:
+1. pick a dataset
+2. pick or set up a prompt config
+
+## Datasets
+
+Available datasets are
+
+1. `Source.COCO2014` and `Source.COCO2017`
+   - COCO has been used to generate the LLaVA-Instruct-158k dataset.
+   - Provides the following data for instruction dataset generation:
+     - captions: 5 sentences by different annotators describing the image
+     - object bounding boxes in the format `category_name: [min_x, min_y, max_x, max_y]`
+2. `Source.OPENIMAGESV7`
+   - Provides the following data for instruction dataset generation:
+     - captions: narratives from voice recordings of annotators describing the image in one or more sentences. 
+     - object bounding boxes in the format `category_name: [min_x, min_y, max_x, max_y] [confidence, is_occluded, is_truncated, is_group_of, is_depiction, is_inside]`
+
 ## Usage Examples
 
 ### Generate dataset with huggingface chat model
@@ -33,7 +54,10 @@ Goals:
 ```python generate.py COCO2014 --model_source openai --model gpt-3.5-turbo```
 
 ### Generate dataset with custom OpenAI API endpoint
-```python generate.py COCO2014 --model_source openai --model mymodel --openai_base_url```
+```python generate.py COCO2014 --model_source openai --model mymodel --openai_base_url BASE_URL```
+
+### Generate OpenImages dataset
+```python generate.py OPENIMAGESV7 --prompt_config prompt_config_openimagesv7.yaml ...```
 
 ## Notes
 * Huggingface chat models: only supports models with chat templates in `tokenizer_config.json`
