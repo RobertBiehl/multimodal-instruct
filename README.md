@@ -2,16 +2,27 @@
 
 Instruction tuning dataset generation inspired by LLaVA-Instruct-158k via any LLM.
 
-Goals:
+## Goals
 1. become independent of LLaVA-Instruct-158k which cannot be used commercially.
 2. Add more datasets, like OpenImages to overcome limited object class range in Coco.
 3. Add more modalities other than images.
+
+## Sponsoring data generation
+
+I currently plan to create the following datasets:
+* equivalent to LLaVA-Instruct-158k on COCO dataset using Llama2 70b and Mixtral 8x7B
+* a more powerful instruction dataset on Open Images V7 including localized narratives, bounding boxes with metadata, image level labels and object relationships.
+* adding more data sources to COCO and Opent Images, specifically
+
+These improved datasets will help multimodal LLM architectures like LLaVA which require pretraining, but even more so architectures like [LaVIN](https://github.com/luogen1996/LaVIN) which only have instruction tuning steps.
+
 
 ## Work in progress
 - [x] improve inference speed of OpenAI API with parallel requests
 - [x] OpenImages v7 support: captions, boxes
 - [ ] OpenImages v7 support for positive and negative image labels in  dataset
 - [ ] fully process with Mistral 7b for first commercially usable version for LLaVA training.
+- [ ] Add token amount estimation tool for cost estimation
 - [ ] add LICENSE information to generated files
 - [ ] add support for motion data instruction dataset creation (e.g. from HumanML3D)
 - [ ] fully process with LLAMA-2 for first commercially usable version for LLaVA training.
