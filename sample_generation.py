@@ -11,15 +11,20 @@ from data_definitions import *
 def generate_samples(context: Context, prompt_config) -> [Dict]:
     include_captions = "captions" in prompt_config["inputs"]
     include_boxes = "boxes" in prompt_config["inputs"]
+    include_boxes_openimages_format = "boxes_openimages" in prompt_config["inputs"]
 
     captions_str = "\n".join([x.caption for x in context.captions]) if include_captions else ""
 
     def round_bbox(bbox):
-        return [round(bbox[0], 3), round(bbox[0], 3), round(bbox[0], 3), round(bbox[0], 3)]
+        return [round(bbox[0], 3), round(bbox[1], 3), round(bbox[2], 3), round(bbox[3], 3)]
 
     # TODO: limit decimal places for bbox
-    object_str = ("\n\n" + "\n".join([f"{box.category_name}: {round_bbox(box.bbox)}" for box in context.boxes])) \
-        if len(context.boxes) > 0 and include_boxes else ""
+    object_str = ""
+    if context.boxes:
+        if include_boxes:
+            object_str = "\n\n" + "\n".join([f"{box.category_name}: {round_bbox(box.bbox)}" for box in context.boxes])
+        elif include_boxes_openimages_format:
+            object_str = "\n\n" + "\n".join([f"{box.category_name}: {round_bbox(box.bbox)} {[box.confidence, box.is_occluded,box.is_truncated,box.is_group_of, box.is_depiction,box.is_inside]}" for box in context.boxes])
 
     instruction = captions_str + object_str
 

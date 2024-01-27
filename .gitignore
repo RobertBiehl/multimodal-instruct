@@ -165,3 +165,4 @@ cache/COCO*
 *.gguf
 cache/gguf
 cache/response_cache*
+cache/open_images

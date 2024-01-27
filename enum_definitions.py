@@ -4,6 +4,7 @@ from enum import Enum
 class Source(Enum):
     COCO2014 = "COCO2014"
     COCO2017 = "COCO2017"
+    OPENIMAGESV7 = "OPENIMAGESV7"
 
     def __str__(self):
         return self.value
