@@ -1,7 +1,7 @@
 #
 conversation:
   type: conversation
-  system_prompt: >
+  system_prompt: |
     As an AI visual assistant, analyze a single image described by five sentences. Create a dialogue between you and a person inquiring about this photo. Your responses should be from the perspective of a visual AI analyzing the image.
 
     Include questions about the image's visual content, such as object types, counts, actions, locations, and relative positions. Only ask questions with definite answers based on the image's content. Avoid uncertain details.
@@ -13,13 +13,13 @@ conversation:
   inputs:
     - captions
   examples:
-    - input: >
+    - input: |
         There is a movie theater that displays the show times above the doors.
         A red fire hydrant is deep in the snow.
         The fire hydrant is in the snow near a recently plowed sidewalk.
         This city has had a very hard winter with snow.
         A hotel for dogs in the snow in winter.
-      output: >
+      output: |
         Question:
         What color is the fire hydrant in the image?
         ===
@@ -33,7 +33,7 @@ conversation:
         The fire hydrant is partially visible, with a significant portion of it covered by the deep snow.
 detail_description:
   type: detail_description
-  system_prompt: >
+  system_prompt: |
     Analyze an image based on five sentences and bounding box coordinates provided as (x1, y1, x2, y2). Use these details to describe the scene naturally, focusing on object counts and their positions. Avoid mentioning the source of information; respond as if observing the image directly.
   system_prompt_instructions_variations:
     - Describe the following image in detail
@@ -67,7 +67,7 @@ detail_description:
     - captions
     - boxes
   examples:
-    - input: >
+    - input: |
         A harbor filled with lots of boats next to a building.
         A bicycle parked in front of several boats at a dock.
         A red bicycle in front of a line of docked white yachts
@@ -86,11 +86,11 @@ detail_description:
         boat: [0.236, 0.532, 0.404, 0.64]
         boat: [0.81, 0.632, 0.836, 0.676]
         boat: [0.957, 0.526, 1.0, 0.752]
-      output: >
+      output: |
         The harbor is filled with many boats, including some white yachts, next to a long building. A red bicycle is parked prominently in front of the boats, with another bike further back.
         
         Near the right side of the harbor, a person is visible, possibly admiring the view or tending to their boat. There's also a cup placed on a surface in the middle of the scene.
-#    - input: >
+#    - input: |
 #        A group of people standing outside of a black vehicle with various luggage.
 #        Luggage surrounds a vehicle in an underground parking area
 #        People try to fit all of their luggage in an SUV.
@@ -109,13 +109,13 @@ detail_description:
 #        car: [0.783, 0.27, 0.827, 0.335]
 #        car: [0.86, 0.254, 0.891, 0.3]
 #        car: [0.261, 0.101, 0.787, 0.626]
-#      output: >
+#      output: |
 #        The image depicts an underground parking area with a black SUV and three people packing luggage for a trip.
 #
 #        Near the left rear wheel is a backpack, with another on the vehicle's right side. There are also two suitcases, one by the right side of the car and another near the parking area's center. A bicycle is visible on the SUV's left side.
 #
 #        Surrounding the main SUV are other cars: one behind and slightly to the left, another behind and to the right, and a third further back on the right side.
-#    - input: >
+#    - input: |
 #        A man holds a Wii-mote above his head while another looks on.
 #        A guy and his friend are playing Nintendo Wii.
 #        A young man is holding a video game remote over his head.
@@ -131,13 +131,13 @@ detail_description:
 #        potted plant: [0.798, 0.384, 0.888, 0.645]
 #        refrigerator: [0.305, 0.389, 0.414, 0.547]
 #        chair: [0.72, 0.509, 0.858, 0.725]
-#      output: >
+#      output: |
 #        The image depicts two men in a room playing a Nintendo Wii game; one energetically raises a Wii remote, the other watches, enjoying the competition.
 #
 #        The room, a living space, includes a couch, dining table, a potted plant near the couch, a centrally placed chair, and a kitchen area with a visible sink and refrigerator.
 complex_reasoning:
   type: complex_reasoning
-  system_prompt: >
+  system_prompt: |
     As an AI visual assistant, analyze an image described by five sentences and specific object locations given as bounding box coordinates (x1, y1, x2, y2). Create a challenging question about the image requiring understanding of visual content and background knowledge. Avoid direct references to visual details in the question. Use the bounding box data to describe the scene in natural language, focusing on object counts and positions without mentioning the data source. Answer as if observing the image directly.
   split_user_assistant: ===
   stopwords: ["Question:", "Answer:"]
@@ -145,7 +145,7 @@ complex_reasoning:
     - captions
     - boxes
   examples:
-    - input: >
+    - input: |
         A man wearing multiple neck ties making a goofy face.
         A man in a white shirt wearing very many ties.
         a man with ties on poses for a picture
@@ -164,13 +164,13 @@ complex_reasoning:
         tie: [ 0.44, 0.318, 0.63, 0.397 ]
         tie: [ 0.566, 0.33, 0.655, 0.543 ]
         tie: [ 0.25, 0.409, 0.359, 0.556 ]
-      output: >
+      output: |
         Question:
         What is unusual about this photo?
         ===
         Answer:
         In the photo, the man is wearing a total of ten ties around his neck. This is considered unusual because it is not common for someone to wear multiple ties at once. In a typical setting, a person would wear only one tie. The man's goofy facial expression also adds to the unconventional and humorous nature of the image.
-#    - input: >
+#    - input: |
 #        A group of people standing outside of a black vehicle with various luggage.
 #        Luggage surrounds a vehicle in an underground parking area
 #        People try to fit all of their luggage in an SUV.
@@ -189,13 +189,13 @@ complex_reasoning:
 #        car: [0.783, 0.27, 0.827, 0.335]
 #        car: [0.86, 0.254, 0.891, 0.3]
 #        car: [0.261, 0.101, 0.787, 0.626]
-#      output: >
+#      output: |
 #        Question:
 #        What challenges do these people face?
 #        ===
 #        Answer:
 #        In the image, a group of people is standing outside a black SUV in a parking area, surrounded by various pieces of luggage, including suitcases and backpacks. They are facing the challenge of fitting all their luggage into the black SUV. There are multiple suitcases and backpacks to be packed, which suggests that the group has a significant amount of belongings to accommodate. They might have to strategize and arrange the luggage efficiently to ensure that everything fits properly into the vehicle. Additionally, they need to consider the comfort of the passengers and visibility while driving, so the placement of the luggage must not obstruct the driver's view or make the passengers uncomfortable during the trip.
-#    - input: >
+#    - input: |
 #        There is a movie theater that displays the show times above the doors.
 #        A red fire hydrant is deep in the snow.
 #        The fire hydrant is in the snow near a recently plowed sidewalk.
@@ -203,7 +203,7 @@ complex_reasoning:
 #        A hotel for dogs in the snow in winter.
 #
 #        fire hydrant: [0.326, 0.612, 0.426, 0.72]
-#      output: >
+#      output: |
 #        Question:
 #        What challenges might this city face?
 #        ===

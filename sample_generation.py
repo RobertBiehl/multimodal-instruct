@@ -58,7 +58,27 @@ def process_llm_result(question_id: str, result: str, context: Context, prompt_c
         result = result.split(prompt_config["split_user_assistant"])
         if not len(result) % 2 == 0:
             print(f"Error {type}: Expecting on assistant answer for every user question. Got {len(result)} messages. \n result: {result}")
-            return []
+
+            # try cleaning up:
+            result_recovered = []
+            for res in result:
+                if res.strip().startswith("Question:\n"):
+                    if "\nAnswer:\n" in res:
+                        result_recovered = result_recovered + res.split("\nAnswer:\n")
+                    else:
+                        result_recovered.append(res)
+                elif res.strip().startswith("Answer:\n"):
+                    if "\nQuestion:\n" in res:
+                        result_recovered = result_recovered + res.split("\nQuestion:\n")
+                    else:
+                        result_recovered.append(res)
+
+            result_recovered = [x for x in result_recovered if x.strip()]
+            if len(result_recovered) % 2 == 0:
+                print(f"Warning {type}: Recovered {len(result_recovered)} messages from {len(result)}")
+                result = result_recovered
+            else:
+                return []
         for i in range(0, len(result), 2):
             samples.append(Sample(
                 id=question_id,

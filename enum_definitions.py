@@ -5,6 +5,7 @@ class Source(Enum):
     COCO2014 = "COCO2014"
     COCO2017 = "COCO2017"
     OPENIMAGESV7 = "OPENIMAGESV7"
+    HUMANML3D = "HUMANML3D"
 
     def __str__(self):
         return self.value

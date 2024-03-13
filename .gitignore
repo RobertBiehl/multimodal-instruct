@@ -166,3 +166,5 @@ cache/COCO*
 cache/gguf
 cache/response_cache*
 cache/open_images
+cache/humanml3d
+.DS_Store

@@ -1,25 +1,20 @@
 import argparse
 import asyncio
-import json
 import logging
 import re
 
 from tqdm import tqdm
 
-from conversation import ConversationBatchService
 from conversation.huggingface import HuggingfaceBatchService
 from conversation.llama_cpp import LLaMACppBatchService
 from conversation.openai import OpenAIBatchService
 from enum_definitions import *
-from data_definitions import *
-from typing import Iterator
+from typing import Iterator, Union
 import yaml
 
-import transformers
-import torch
-
-from dataset import coco, open_images
+from dataset import coco, open_images, humanml3d
 from sample_generation import *
+from writer import JSONLWriter, JSONLLaVAInstructWriter
 
 
 def main():
@@ -38,7 +33,7 @@ def main():
 
     parser.add_argument("--output_format", default=OutputFormat.JSONL, type=OutputFormat,
                         choices=list(OutputFormat),
-                        help="Output format of the dataset (default: llava-instruct). Available: " + ", ".join(
+                        help="Output format of the dataset (default: jsonl). Available: " + ", ".join(
                             [o.value for o in OutputFormat]))
 
     # parser.add_argument("--context", default=[ContextProperties.CAPTIONS, ContextProperties.BOXES], nargs='*',
@@ -91,66 +86,71 @@ async def run(args):
     else:
         raise ValueError
 
-
-
     pipe_name = re.sub(r'\W+', '_', args.model).lower()
 
     with open(args.prompt_config, 'r') as file:
         prompt_configs = yaml.safe_load(file)
 
-    output_file = open(args.output_path, 'w')
+    writer: Union[JSONLWriter, JSONLLaVAInstructWriter]
+    if args.output_format == OutputFormat.JSONL:
+        writer = JSONLWriter(args.output_path)
+    elif args.output_format == OutputFormat.LLAVA_INSTRUCT:
+        writer = JSONLLaVAInstructWriter(args.output_path, modality_key="motion")
 
     def on_result(question_id: str, result: str, context: Context, prompt_config):
         samples = process_llm_result(question_id, result, context, prompt_config)
         for sample in samples:
-            write_str = json.dumps(sample, default=lambda x: x.__dict__)
-            output_file.write(write_str + '\n')
+            writer.write(sample)
 
     conversation_service.set_on_result(on_result)
 
-    # process datasets
-    for source in args.sources:
-        # data loader
-        generator: Iterator[Context]
-        if source == Source.COCO2014 or source == Source.COCO2017:
-            generator = coco.COCOLoader(source.value, args.dataset_storage_path)
-        elif source == Source.OPENIMAGESV7:
-            generator: Iterator[Context] = open_images.OpenImagesLoader(args.dataset_storage_path)
-        else:
-            raise ValueError
+    try:
+        # process datasets
+        for source in args.sources:
+            # data loader
+            generator: Iterator[Context]
+            if source == Source.COCO2014 or source == Source.COCO2017:
+                generator = coco.COCOLoader(source.value, args.dataset_storage_path)
+            elif source == Source.OPENIMAGESV7:
+                generator: Iterator[Context] = open_images.OpenImagesLoader(args.dataset_storage_path)
+            elif source == Source.HUMANML3D:
+                generator: Iterator[Context] = humanml3d.HumanML3DLoader(args.dataset_storage_path, sub_datasets=[humanml3d.HumanML3DLoader.HumanML3DType.CMU, humanml3d.HumanML3DLoader.HumanML3DType.HDM05])
+            else:
+                raise ValueError
 
-        num_expected_requests = len(generator) * len(prompt_configs.values())
-        with tqdm(total=num_expected_requests, desc="Generating samples") as progress_bar:
-            def on_result_progress(*vargs, **kwargs):
-                progress_bar.update(1)
-                progress_bar.set_description(f"{conversation_service.num_in_progress} running, {conversation_service.num_temp_failed} temp errors, {conversation_service.num_failed} failed (completed from cache {conversation_service.num_completed_from_cache})")
-                progress_bar.refresh()
-                on_result(*vargs, **kwargs)
+            num_expected_requests = len(generator) * len(prompt_configs.values())
+            with tqdm(total=num_expected_requests, desc="Generating samples") as progress_bar:
+                def on_result_progress(*vargs, **kwargs):
+                    progress_bar.update(1)
+                    progress_bar.set_description(
+                        f"{conversation_service.num_in_progress} running, {conversation_service.num_temp_failed} temp errors, {conversation_service.num_failed} failed (completed from cache {conversation_service.num_completed_from_cache})")
+                    progress_bar.refresh()
+                    on_result(*vargs, **kwargs)
 
-            conversation_service.set_on_result(on_result_progress)
+                conversation_service.set_on_result(on_result_progress)
 
-            tasks: List[asyncio.Task] = []
-            for i, context in enumerate(generator):
-                for prompt_config in prompt_configs.values():
-                    messages = generate_samples(context, prompt_config)
+                tasks: List[asyncio.Task] = []
+                for i, context in enumerate(generator):
+                    for prompt_config in prompt_configs.values():
+                        messages = generate_samples(context, prompt_config)
 
-                    # run pipeline and cache
-                    messages_hash = hashlib.sha256(json.dumps(messages, sort_keys=True).encode('utf-8')).hexdigest()
-                    question_id = f"{pipe_name}_{generator.name}_{messages_hash}_{prompt_config['type']}"
+                        # run pipeline and cache
+                        messages_hash = hashlib.sha256(json.dumps(messages, sort_keys=True).encode('utf-8')).hexdigest()
+                        question_id = f"{pipe_name}_{generator.name}_{messages_hash}_{prompt_config['type']}"
 
-                    task = await conversation_service.submit(question_id, messages, context=context, prompt_config=prompt_config)
-                    tasks.append(task)
+                        task = await conversation_service.submit(question_id, messages, context=context,
+                                                                 prompt_config=prompt_config)
+                        tasks.append(task)
 
-                if len(tasks) > 1024:
-                    logging.info(f"Gathering {len(tasks)} tasks.")
-                    await asyncio.gather(*tasks)
-                    tasks.clear()
+                    if len(tasks) > 1024:
+                        logging.info(f"Gathering {len(tasks)} tasks.")
+                        await asyncio.gather(*tasks)
+                        tasks.clear()
 
-            await asyncio.gather(*tasks)
-            await conversation_service.finish()
-
-
-    output_file.close()
+                await asyncio.gather(*tasks)
+                await conversation_service.finish()
+    finally:
+        writer.close()
 
 
 if __name__ == "__main__":

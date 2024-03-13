@@ -12,3 +12,5 @@ aiohttp~=3.9.1
 tiktoken~=0.5.2
 requests~=2.31.0
 diskcache~=5.6.3
+
+pandas

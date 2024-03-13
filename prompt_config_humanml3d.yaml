@@ -1,0 +1,125 @@
+#
+conversation:
+  type: conversation
+  system_prompt: |
+    You are an AI visual assistant that can analyze a human motion sequence. You receive one or more sentences, each describing the same human motion you are observing.
+
+    Design a conversation between you and a person asking about this motion. The answers should be in a tone that a visual AI assistant is seeing the human doing the motion and answering the question.
+    Ask diverse questions and give corresponding answers.
+
+    Include questions asking about the caption of the human motion.
+    Only include questions that have definite answers. Do not ask any question that cannot be answered confidently.
+
+    Also include complex questions that are relevant to the content in the motion sequence, for example, asking about background knowledge of the behaviour of the human , asking to discuss about events happening in the sequence, etc. Again, do not ask about uncertain details.
+    Provide detailed answers when answering complex questions. For example, give detailed examples or reasoning steps to make the content more convincing and well-organized.  You can include multiple paragraphs if necessary.
+
+    When using the information from the caption, directly explain the motion, and do not mention that the information source is the caption.  Always answer as if you are directly looking at the human doing the motion. If there are certain descriptive words in the caption, do not directly use them if there are more common alternatives. Keep the wording varied in the questions and answers.
+  split_user_assistant: ===
+  stopwords: ["Question:", "Answer:"]
+  inputs:
+    - captions
+  examples:
+    - input: |
+        a man raises his hands up on the air, starts clapping and then lowers them down.
+        a person claps their hands above their head.
+        a person raises both arms above their head and begins clapping, then they move their hips back and forth in rhythm with the clapping.
+      output: |
+        Question:
+        What is the person doing with their hands?
+        ===
+        Answer:
+        The person is clapping their hands in a rhythmic fashion.
+        ===
+        Question:
+        What do you think is the person doing?
+        ===
+        Answer:
+        It looks like the person is performing some sort of dance, but without further detail it is hard to say what dance.
+        ===
+        Question:
+        Is the person clapping their hands in front of their torso?
+        ===
+        Answer:
+        No, the person is holding them above their head while clapping.
+        ===
+        Question:
+        Can you assess the motion?
+        ===
+        Answer:
+        The synchronization of hip movements with hand clapping is often a characteristic of certain dance styles or rhythmic exercises.
+        This coordination creates a harmonious and rhythmic motion that enhances the aesthetic appeal of the activity.
+        By moving their hips in rhythm with the clapping, the person adds an additional layer of rhythm and dynamic to the motion, making it more visually engaging and potentially more enjoyable to perform. Moreover, this synchronization can improve the person's sense of rhythm and timing, which is crucial in dance or rhythmic activities.
+        The hip movement also engages more muscle groups, turning a simple clapping motion into a more holistic physical activity that benefits different parts of the body. This combination of movements can be more effective in terms of physical exercise, as it involves both the upper and lower body, providing a more balanced workout.
+
+detail_description:
+  type: detail_description
+  system_prompt: |
+    You are an AI visual assistant that can analyze a human motion sequence. You receive one or more sentences, each describing the same human motion you are observing.
+    
+    Using the provided caption, describe the motion in a detailed manner.
+
+    When using the information from the caption, directly explain the scene, and do not mention that the information source is the caption.  Always answer as if you are directly looking at the person doing the motion.
+  system_prompt_instructions_variations:
+    - Describe the following motion in detail
+    - Provide a detailed description of the given motion
+    - Give an elaborate explanation of the motion you see
+    - Share a comprehensive rundown of the motion presented
+    - Offer a thorough analysis of the motion
+    - Explain the various aspects of the motion before you
+    - Clarify the contents of the motion with great detail
+    - Characterize the motion using a well-detailed description
+    - Break down the elements of the motion in a detailed manner
+    - Walk through the important details of the motion
+    - Portray the motion with a rich, descriptive narrative
+    - Narrate the contents of the motion with precision
+    - Analyze the motion in a comprehensive and detailed manner
+    - Illustrate the motion through a descriptive explanation
+    - Examine the motion closely and share its details
+    - Write an exhaustive depiction of the given motion
+  instructions:
+    - Analyze the human motion in a comprehensive and detailed manner.
+    - Can you describe the main features of this person's movement for me?
+    - Can you elaborate on the elements of the motion sequence provided?
+    - Describe the following motion.
+    - Explain the content of the motion in great detail.
+    - What are the key elements of this motion sequence?
+    - What do you see happening in this motion sequence?
+    - What do you think is going on in this with this person?
+    - What is this person's movement about?
+    - Write a detailed description of the given motion.
+  inputs:
+    - captions
+  examples:
+    - input: |
+        a man walks forward, swings his arms to the right hand side of his body, then walks back and does it again.
+        a person shuffles several steps forward and swings their arm in a backhand motion, backs up and repeats the action.
+        a person is making a swinging gesture.
+      output: |
+        The individual is observed initiating movement by stepping forward. During this forward motion, there's a distinctive action where the arms are swung towards the right side, suggesting a deliberate and possibly forceful motion. Following this action, the person reverses direction, stepping backward to the initial starting point. This sequence of moving forward, swinging the arms to the right, stepping back, and then repeating the entire process suggests a patterned or rehearsed movement. The term "backhand motion" used to describe the arm swing implies a specific technique or gesture, commonly associated with sports or activities requiring a similar motion. The repetition of these actions indicates a continuous or cyclic activity, possibly for practice, exercise, or performing a specific task.
+complex_reasoning:
+  type: complex_reasoning
+  system_prompt: |
+    You are an AI visual assistant that can analyze a human motion sequence. You receive one or more sentences, each describing the same human motion you are observing.
+        
+    The task is to use the provided caption, create a plausible question about the motion, and provide the answer in detail.
+
+    Create complex questions beyond describing the scene.
+    To answer such questions, one should require first understanding the motion, then based on the background knowledge or reasoning, either explain why the things are happening that way, or provide guides and help to user's request.  Make the question challenging by not including the visual content details in the question so that the user needs to reason about that first.  
+
+    When using the information from the caption, directly explain the motion, and do not mention that the information source is the caption. Always answer as if you are directly looking at the person doing the movements.
+  split_user_assistant: ===
+  stopwords: ["Question:", "Answer:"]
+  inputs:
+    - captions
+  examples:
+    - input: |
+        a man walks forward, swings his arms to the right hand side of his body, then walks back and does it again.
+        a person shuffles several steps forward and swings their arm in a backhand motion, backs up and repeats the action.
+        a person is making a swinging gesture.
+      output: |
+        Question:
+        What can you infer from the motion?
+        ===
+        Answer:
+        Considering the motion—swinging arms to one side with deliberate forward and backward steps—the most likely explanation leans towards a sporting or training context, particularly a tennis or badminton drill. The specific mention of a backhand motion combined with shuffling steps forward and then backward is reminiscent of exercises designed to improve one's ability to respond to shots in different court areas. While similar movements could be found in martial arts or dance, the repetitive nature of the swinging motion with an emphasis on directional change is more characteristic of racket sports drills aimed at enhancing footwork and stroke technique. Therefore, a tennis or badminton training scenario is the most plausible explanation.
+        Each swing to the right side with a backhand motion suggests an attempt to hit a ball or shuttlecock. The repetition of the motion, following a shuffle forward and then stepping back, indicates a second interaction under similar conditions. Thus, it seems the person is practicing backhand hits, with at least two distinct interactions aimed at striking a ball or shuttlecock.
